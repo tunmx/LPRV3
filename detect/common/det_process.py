@@ -162,7 +162,7 @@ def use_time(tag=''):
     '''
     def wrapper(fn):
         @wraps(fn)
-        def measure_use_time(*args, **kw):
+        def wrapper_use_time(*args, **kw):
             '''
             函数传参方式 fn(arg1, arg2, param1=a, param2=b)
             :param args: 位置参数(arg1, arg2, ....)  传参方式 fn(arg1, arg2, ...)
@@ -179,7 +179,7 @@ def use_time(tag=''):
                 t2 = time.time()
                 logger.info(f"{tag}@UseTime: {t2 - t1}")
                 return res
-        return measure_use_time
+        return wrapper_use_time
     return wrapper
 
 
