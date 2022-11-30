@@ -77,7 +77,7 @@ class DetectorOrt(HamburgerABC):
 
         return boxes, classes, scores
 
-    @use_time("RunSession")
+    @use_time("Detect")
     def _run_session(self, data):
         outputs = self.session.run([], {"images": data})
 

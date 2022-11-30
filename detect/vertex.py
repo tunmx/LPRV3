@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from .base.base import HamburgerABC
-
+from .common.det_process import use_time
 
 class VertexOrt(HamburgerABC):
 
@@ -11,6 +11,7 @@ class VertexOrt(HamburgerABC):
         self.session = ort.InferenceSession(onnx_path, None)
         self.input_config = self.session.get_inputs()[0]
         self.output_config = self.session.get_outputs()[0]
+        self.input_size = self.input_config.shape[2:]
 
     @staticmethod
     def encode_images(image: np.ndarray):
@@ -23,6 +24,7 @@ class VertexOrt(HamburgerABC):
 
         return image_encode
 
+    @use_time('Vertex')
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
 

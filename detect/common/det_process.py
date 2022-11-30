@@ -118,12 +118,12 @@ def restore_bound_box(boxes: list, ratio: tuple, pad_size: tuple):
     if len(boxes) > 0:
         pad_width, pad_height = pad_size
         boxes_array = np.asarray(boxes)
-        print(boxes_array)
+        # print(boxes_array)
         boxes_array[:, 0] = (boxes_array[:, 0] - pad_width) / ratio[0]
         boxes_array[:, 1] = (boxes_array[:, 1] - pad_height) / ratio[1]
         boxes_array[:, 2] = (boxes_array[:, 2] - pad_width) / ratio[0]
         boxes_array[:, 3] = (boxes_array[:, 3] - pad_height) / ratio[1]
-        print(boxes_array)
+        # print(boxes_array)
         boxes = boxes_array.tolist()
 
     return boxes
@@ -181,3 +181,6 @@ def use_time(tag=''):
                 return res
         return measure_use_time
     return wrapper
+
+
+
