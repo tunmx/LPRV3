@@ -1,2 +1,2 @@
-from .ort_detect import DetectorOrt
+from .detect import DetectorOrt
 

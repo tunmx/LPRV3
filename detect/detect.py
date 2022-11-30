@@ -1,6 +1,5 @@
-import onnxruntime as ort
-from .process import *
-from .base.base import DetectorABC
+from detect.common.det_process import *
+from .base.base import HamburgerABC
 
 ANCHORS_MAP = {
     320: [[9.38281, 3.08398], [15.53125, 4.93750], [19.98438, 7.78906],
@@ -11,10 +10,13 @@ ANCHORS_MAP = {
 }
 
 
-class DetectorOrt(DetectorABC):
+class DetectorOrt(HamburgerABC):
 
-    def __init__(self, onnx_path, *args, **kwargs):
+    def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
+        import onnxruntime as ort
         super().__init__(*args, **kwargs)
+        self.box_threshold = box_threshold
+        self.nms_threshold = nms_threshold
         self.session = ort.InferenceSession(onnx_path, None)
         self.inputs_option = self.session.get_inputs()
         self.outputs_option = self.session.get_outputs()

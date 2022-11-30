@@ -1,14 +1,11 @@
 from abc import ABCMeta, abstractmethod
 
 
-class DetectorABC(metaclass=ABCMeta):
+class HamburgerABC(metaclass=ABCMeta):
 
-    def __init__(self, input_size: tuple = None, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args,
+    def __init__(self, input_size: tuple = None, *args,
                  **kwargs):
         self.input_size = input_size
-        self.box_threshold = box_threshold
-        self.nms_threshold = nms_threshold
-
 
     @abstractmethod
     def _run_session(self, data):
