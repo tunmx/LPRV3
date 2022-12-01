@@ -1,47 +1,11 @@
 import cv2
-from detect import DetectorOrt, VertexOrt
+import breezelpr as bpr
 import click
 import numpy as np
 
 CLASSES = ['plate', ]
 
-def align_box(imgs, bbox, size=96, scale_factor=1.0, center_bias=0, borderValue=(0, 0, 0)):
-    bias_x = (-1 + 2 * np.random.sample()) * center_bias
-    bias_y = (-1 + 2 * np.random.sample()) * center_bias
-    b_x1, b_y1, b_x2, b_y2 = bbox
-    cx, cy = (b_x1 + b_x2) // 2, (b_y1 + b_y2) // 2
-    w = b_x2 - b_x1
-    h = b_y2 - b_y1
-    cx += w * bias_x
-    cy += h * bias_y
 
-    base_r = max(w, h)
-    j_x = 0
-    j_y = 0
-    j_r = 0
-    base_r += j_r
-    r = int(base_r / 2 * scale_factor)
-    cy -= int(base_r * 0)
-    cx += j_x
-    cy += j_y
-    x1, y1, x2, y2 = cx - r, cy - r, cx + r, cy + r
-    x3, y3 = cx - r, cy + r
-    _x1, _y1, _x2, _y2, _x3, _y3 = [0, 0, size, size, 0, size]
-    src = np.array([x1, y1, x2, y2, x3, y3], dtype=np.float32).reshape(3, 2)
-    sv = np.asarray([[b_x1, b_y1, 1], [b_x2, b_y2, 1]])
-
-    dst = np.array([_x1, _y1, _x2, _y2, _x3, _y3], dtype=np.float32).reshape(3, 2)
-    assert src.dtype == np.float32
-    assert dst.dtype == np.float32
-    assert src.shape == (3, 2)
-    assert dst.shape == (3, 2)
-    mat = cv2.getAffineTransform(src, dst)
-    p = sv.dot(mat.T).reshape(-1)
-    if type(imgs) == list:
-        imgs = [cv2.warpAffine(img, mat, (size, size), borderValue=borderValue) for img in imgs]
-    else:
-        imgs = cv2.warpAffine(imgs, mat, (size, size), borderValue=borderValue)
-    return imgs, p, mat
 
 def draw(image, boxes, scores, classes):
     """Draw the boxes on the image.
@@ -73,13 +37,13 @@ def draw(image, boxes, scores, classes):
 @click.option("-vertex_onnx", "--vertex_onnx", default="resource/vertex/vertex_mnet025_x96.onnx", type=click.Path(exists=True))
 @click.option("-image", "--image", type=click.Path(exists=True))
 def run(det_onnx, vertex_onnx, image):
-    detector = DetectorOrt(det_onnx)
-    vertex = VertexOrt(vertex_onnx, )
+    detector = bpr.DetectorOrt(det_onnx)
+    vertex = bpr.VertexOrt(vertex_onnx, )
     image = cv2.imread(image)
     boxes, classes, scores = detector(image)
     if boxes:
         for box in boxes:
-            warped, p, mat = align_box(image, box, scale_factor=1.2, size=96)
+            warped, p, mat = bpr.align_box(image, box, scale_factor=1.2, size=96)
             kps = vertex(warped)
             polyline = list()
             for point in kps:

@@ -1,4 +1,4 @@
-from detect.common.det_process import *
+from breezelpr.common.tools_process import *
 from .base.base import HamburgerABC
 
 ANCHORS_MAP = {

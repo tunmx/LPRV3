@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from .base.base import HamburgerABC
-from .common.det_process import use_time
+from .common.tools_process import use_time
 
 class VertexOrt(HamburgerABC):
 
