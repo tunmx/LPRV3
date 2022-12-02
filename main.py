@@ -37,7 +37,7 @@ def draw(image, boxes, scores, classes):
 @click.option("-vertex_onnx", "--vertex_onnx", default="resource/vertex/vertex_mnet025_x96.onnx", type=click.Path(exists=True))
 @click.option("-image", "--image", type=click.Path(exists=True))
 def run(det_onnx, vertex_onnx, image):
-    detector = bpr.DetectorOrt(det_onnx)
+    detector = bpr.DetectorOrt(det_onnx, box_threshold=0.4)
     vertex = bpr.VertexOrt(vertex_onnx, )
     image = cv2.imread(image)
     boxes, classes, scores = detector(image)
