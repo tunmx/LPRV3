@@ -32,6 +32,9 @@ def draw(image, boxes, scores, classes):
                     0.6, (190, 120, 188), 2)
 
 
+pad_height = 128
+pad_width = 256
+
 @click.command()
 @click.option("-det_onnx", "--det_onnx", default="resource/det/y5s_r_det_320x.onnx", type=click.Path(exists=True))
 @click.option("-vertex_onnx", "--vertex_onnx", default="resource/vertex/vertex_mnet025_x96.onnx", type=click.Path(exists=True))
@@ -41,6 +44,8 @@ def run(det_onnx, vertex_onnx, image):
     vertex = bpr.VertexOrt(vertex_onnx, )
     image = cv2.imread(image)
     boxes, classes, scores = detector(image)
+    ori = image.copy()
+    pads = list()
     if boxes:
         for box in boxes:
             warped, p, mat = bpr.align_box(image, box, scale_factor=1.2, size=96)
@@ -52,9 +57,18 @@ def run(det_onnx, vertex_onnx, image):
             inv = cv2.invertAffineTransform(mat)
             trans_points = np.dot(inv, polyline.T).T
             cv2.polylines(image, [trans_points.astype(np.int32)], True, (0, 0, 200), 2, )
+
+            lt, rt, rb, lb = trans_points
+            pst1 = np.float32([lt, rt, lb, rb])
+            pst2 = np.float32([[0, 0], [pad_width, 0], [0, pad_height], [pad_width, pad_height]])
+            matrix = cv2.getPerspectiveTransform(pst1, pst2)
+            pad = cv2.warpPerspective(ori, matrix, (pad_width, pad_height))
+            pads.append(pad)
             for x, y in trans_points.astype(np.int32):
                 cv2.line(image, (x, y), (x, y), (0, 240, 0), 3)
 
+
+    cv2.imshow(f"pads", np.concatenate(pads, axis=0))
     cv2.imshow("post process result", image)
     cv2.waitKeyEx(0)
 
