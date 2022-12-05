@@ -4,6 +4,8 @@ import click
 import numpy as np
 
 CLASSES = ['plate', ]
+pad_height = 128
+pad_width = 256
 
 
 
@@ -32,12 +34,10 @@ def draw(image, boxes, scores, classes):
                     0.6, (190, 120, 188), 2)
 
 
-pad_height = 128
-pad_width = 256
-
 @click.command()
 @click.option("-det_onnx", "--det_onnx", default="resource/det/y5s_r_det_320x.onnx", type=click.Path(exists=True))
-@click.option("-vertex_onnx", "--vertex_onnx", default="resource/vertex/vertex_mnet025_x96.onnx", type=click.Path(exists=True))
+@click.option("-vertex_onnx", "--vertex_onnx", default="resource/vertex/vertex_mnet025_x96.onnx",
+              type=click.Path(exists=True))
 @click.option("-image", "--image", type=click.Path(exists=True))
 def run(det_onnx, vertex_onnx, image):
     detector = bpr.DetectorOrt(det_onnx, box_threshold=0.4)
@@ -66,7 +66,6 @@ def run(det_onnx, vertex_onnx, image):
             pads.append(pad)
             for x, y in trans_points.astype(np.int32):
                 cv2.line(image, (x, y), (x, y), (0, 240, 0), 3)
-
 
     cv2.imshow(f"pads", np.concatenate(pads, axis=0))
     cv2.imshow("post process result", image)
