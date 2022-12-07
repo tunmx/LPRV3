@@ -8,7 +8,6 @@ pad_height = 128
 pad_width = 256
 
 
-
 def draw(image, boxes, scores, classes):
     """Draw the boxes on the image.
     # Argument:
