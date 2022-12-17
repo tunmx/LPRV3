@@ -88,16 +88,18 @@ class PPRCNNRecognition(HamburgerABC):
     @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
-
         return result
 
     def _postprocess(self, data) -> tuple:
-        prod = data[0]
-        argmax = np.argmax(prod, axis=2)
-        rmax = np.max(prod, axis=2)
-        result = self.decode(argmax, rmax, is_remove_duplicate=True)
+        if data:
+            prod = data[0]
+            argmax = np.argmax(prod, axis=2)
+            rmax = np.max(prod, axis=2)
+            result = self.decode(argmax, rmax, is_remove_duplicate=True)
 
-        return result[0]
+            return result[0]
+        else:
+            return ('', 0.0)
 
     def _preprocess(self, image) -> np.ndarray:
         assert len(

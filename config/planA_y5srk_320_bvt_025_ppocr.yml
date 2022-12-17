@@ -6,7 +6,7 @@ build_pipeline:
     nms_threshold: 0.6
   vertex_option:
     name: BVTVertex
-    onnx_path: resource/vertex/vertex_mnet025_x96.onnx
+    onnx_path: resource/vertex/vertex_mnet025_x96_r2.onnx
   rec_option:
       name: PPRCNNRecognition
       onnx_path: resource/rec/rec_ptocr_v3_rec_infer.onnx

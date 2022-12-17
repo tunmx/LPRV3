@@ -6,23 +6,6 @@ import yaml
 from easydict import EasyDict as edict
 from utils.visual_tools import *
 
-det_option = dict(
-    name="Y5rkDetector",
-    onnx_path="resource/det/y5s_r_det_320x.onnx",
-    box_threshold=0.5,
-    nms_threshold=0.6
-)
-vertex_option = dict(
-    name="BVTVertex",
-    onnx_path="resource/vertex/vertex_mnet025_x96.onnx",
-)
-rec_option = dict(
-    name="PPRCNNRecognition",
-    onnx_path="resource/rec/rec_ptocr_v3_rec_infer.onnx",
-    character_file="resource/rec/ppocr_keys_v1.txt"
-)
-
-
 def load_cfg(config_path: str) -> edict:
     with open(config_path) as f:
         data_dict = yaml.load(f, Loader=yaml.FullLoader)
