@@ -1,13 +1,14 @@
 build_pipeline:
   det_option:
-    name: Y5rkDetector
+    name: Y5rkDetectorORT
     onnx_path: resource/det/y5s_r_det_320x.onnx
     box_threshold: 0.5
     nms_threshold: 0.6
   vertex_option:
-    name: BVTVertex
+    name: BVTVertexORT
     onnx_path: resource/vertex/vertex_mnet025_x96_r2.onnx
   rec_option:
-      name: PPRCNNRecognition
+      name: PPRCNNRecognitionORT
       onnx_path: resource/rec/rec_ptocr_v3_rec_infer.onnx
       character_file: resource/rec/ppocr_keys_v1.txt
+      input_size: [48, 320]

@@ -1,19 +1,20 @@
-from .detect import Y5rkDetector
-from .vertex import BVTVertex
-from .recognition import PPRCNNRecognition
+from .detect import Y5rkDetectorORT
+from .vertex import BVTVertexORT
+from .recognition import PPRCNNRecognitionORT, PPRCNNRecognitionMNN
 from .common.tools_process import align_box
 from .pipeline import LPRPipeline
 
 _det_maps_ = dict(
-    Y5rkDetector=Y5rkDetector,
+    Y5rkDetectorORT=Y5rkDetectorORT,
 )
 
 _vertex_maps_ = dict(
-    BVTVertex=BVTVertex,
+    BVTVertexORT=BVTVertexORT,
 )
 
 _rec_maps_ = dict(
-    PPRCNNRecognition=PPRCNNRecognition,
+    PPRCNNRecognitionORT=PPRCNNRecognitionORT,
+    PPRCNNRecognitionMNN=PPRCNNRecognitionMNN,
 )
 
 

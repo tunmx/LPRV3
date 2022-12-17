@@ -4,7 +4,7 @@ from .base.base import HamburgerABC
 from .common.tools_process import cost
 
 
-class BVTVertex(HamburgerABC):
+class BVTVertexORT(HamburgerABC):
 
     def __init__(self, onnx_path, *args, **kwargs):
         import onnxruntime as ort

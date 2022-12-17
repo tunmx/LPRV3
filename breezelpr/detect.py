@@ -10,7 +10,7 @@ ANCHORS_MAP = {
 }
 
 
-class Y5rkDetector(HamburgerABC):
+class Y5rkDetectorORT(HamburgerABC):
 
     def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
         import onnxruntime as ort
