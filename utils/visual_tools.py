@@ -27,14 +27,6 @@ def draw_full(image: np.ndarray, plate_list: dict, ) -> np.ndarray:
         cv2.polylines(canvas, [kps.astype(np.int32)], True, (0, 0, 200), line_size, )
         for x, y in kps.astype(np.int32):
             cv2.line(canvas, (x, y), (x, y), (80, 240, 100), point_size)
-        txt_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, bd_w // 80, 2)[0]
-        # cv2.rectangle(
-        #     canvas,
-        #     (x1, y1 - txt_size[1] - 1),
-        #     (x1 + bd_w, y1 - 1),
-        #     (255, 255, 255),
-        #     -1,
-        # )
         text_x = kps[0][0]
         text_y = kps[0][1] - bd_y // 1.4
         canvas = cv2ImgAddText(canvas, text, text_x, text_y, textSize=bd_w // 5)

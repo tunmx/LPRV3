@@ -1,8 +1,5 @@
-import cv2
-import numpy as np
 from .common.typedef import Plate
 from .common.tools_process import *
-from typing import List
 
 
 class LPRPipeline(object):
@@ -34,7 +31,6 @@ class LPRPipeline(object):
                 result.append(plate.to_dict())
 
         return result
-
 
     def __call__(self, image: np.ndarray, *args, **kwargs):
         return self.run(image)
