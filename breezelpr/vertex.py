@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 from .base.base import HamburgerABC
-from .common.tools_process import use_time
+from .common.tools_process import cost
 
-class VertexOrt(HamburgerABC):
+
+class BVTVertex(HamburgerABC):
 
     def __init__(self, onnx_path, *args, **kwargs):
         import onnxruntime as ort
@@ -24,7 +25,7 @@ class VertexOrt(HamburgerABC):
 
         return image_encode
 
-    @use_time('Vertex')
+    @cost('Vertex')
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
 
@@ -48,4 +49,3 @@ class VertexOrt(HamburgerABC):
         input_tensor = np.expand_dims(encode, 0)
 
         return input_tensor
-

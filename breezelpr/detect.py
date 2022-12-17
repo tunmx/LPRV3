@@ -10,7 +10,7 @@ ANCHORS_MAP = {
 }
 
 
-class DetectorOrt(HamburgerABC):
+class Y5rkDetector(HamburgerABC):
 
     def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
         import onnxruntime as ort
@@ -77,7 +77,7 @@ class DetectorOrt(HamburgerABC):
 
         return boxes, classes, scores
 
-    @use_time("Detect")
+    @cost("Detect")
     def _run_session(self, data):
         outputs = self.session.run([], {"images": data})
 
