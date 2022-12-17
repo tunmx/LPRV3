@@ -24,6 +24,7 @@ def run(config, image, ):
     image = cv2.imread(image)
     lpr_predictor = bpr.build_pipeline(**build_pipeline_option)
     result = lpr_predictor(image)
+    print(result)
     canvas = draw_full(image, result)
 
     cv2.imshow("canvas", canvas)

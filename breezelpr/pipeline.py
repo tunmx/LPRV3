@@ -9,7 +9,7 @@ class LPRPipeline(object):
         self.vertex_predictor = vertex_predictor
         self.recognizer = recognizer
 
-    # @cost("PipelineTotalCost")
+    @cost("PipelineTotalCost")
     def run(self, image: np.ndarray) -> list:
         result = list()
         boxes, classes, scores = self.detector(image)
@@ -25,12 +25,10 @@ class LPRPipeline(object):
                 inv = cv2.invertAffineTransform(mat)
                 trans_points = np.dot(inv, polyline.T).T
                 pad = get_rotate_crop_image(image, trans_points)
-                print(pad.shape)
+                # print(pad.shape)
                 plate_code, rec_confidence = self.recognizer(pad)
                 if plate_code == '':
                     continue
-                print(rec_confidence)
-                print('_', plate_code)
                 plate = Plate(vertex=trans_points, plate_code=plate_code, det_bound_box=np.asarray(box),
                               rec_confidence=rec_confidence, dex_bound_confidence=det_confidence)
                 result.append(plate.to_dict())
