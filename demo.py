@@ -15,7 +15,7 @@ def load_cfg(config_path: str) -> edict:
 
 
 @click.command()
-@click.option("-config", "--config", default="config/planA_y5srk_320_bvt_025_ppocr.yml", type=click.Path(exists=True))
+@click.option("-config", "--config", default="config/planA_ort.yml", type=click.Path(exists=True))
 @click.option("-image", "--image", type=click.Path(exists=True))
 def run(config, image, ):
     cfg = load_cfg(config)

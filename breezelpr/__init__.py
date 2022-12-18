@@ -1,32 +1,48 @@
-from .detect import Y5rkDetectorORT
-from .vertex import BVTVertexORT
-from .recognition import PPRCNNRecognitionORT, PPRCNNRecognitionMNN
-from .common.tools_process import align_box
 from .pipeline import LPRPipeline
 
-_det_maps_ = dict(
-    Y5rkDetectorORT=Y5rkDetectorORT,
-)
 
-_vertex_maps_ = dict(
-    BVTVertexORT=BVTVertexORT,
-)
+def det_maps(name: str):
+    if name == "Y5rkDetectorORT":
+        from .detect import Y5rkDetectorORT
+        return Y5rkDetectorORT
+    elif name == "Y5rkDetectorMNN":
+        from .detect import Y5rkDetectorMNN
+        return Y5rkDetectorMNN
+    else:
+        raise NotImplemented
 
-_rec_maps_ = dict(
-    PPRCNNRecognitionORT=PPRCNNRecognitionORT,
-    PPRCNNRecognitionMNN=PPRCNNRecognitionMNN,
-)
+
+def vertex_maps(name: str):
+    if name == "BVTVertexORT":
+        from .vertex import BVTVertexORT
+        return BVTVertexORT
+    if name == "BVTVertexMNN":
+        from .vertex import BVTVertexMNN
+        return BVTVertexMNN
+    else:
+        raise NotImplemented
+
+
+def rec_maps(name: str):
+    if name == "PPRCNNRecognitionORT":
+        from .recognition import PPRCNNRecognitionORT
+        return PPRCNNRecognitionORT
+    elif name == "PPRCNNRecognitionMNN":
+        from .recognition import PPRCNNRecognitionMNN
+        return PPRCNNRecognitionMNN
+    else:
+        raise NotImplemented
 
 
 def build_pipeline(det_option: dict, vertex_option: dict, rec_option):
     det_option_ = det_option.copy()
     det_name = det_option_.pop("name")
-    detector = _det_maps_[det_name](**det_option_)
+    detector = det_maps(det_name)(**det_option_)
     vertex_option_ = vertex_option.copy()
     vertex_name = vertex_option_.pop("name")
-    vertex_predictor = _vertex_maps_[vertex_name](**vertex_option_)
+    vertex_predictor = vertex_maps(vertex_name)(**vertex_option_)
     rec_option_ = rec_option.copy()
     rec_name = rec_option_.pop("name")
-    recognizer = _rec_maps_[rec_name](**rec_option_)
+    recognizer = rec_maps(rec_name)(**rec_option_)
 
     return LPRPipeline(detector=detector, vertex_predictor=vertex_predictor, recognizer=recognizer)
