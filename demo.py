@@ -30,7 +30,7 @@ def run(config, image, ):
 
     cv2.imshow("canvas", canvas)
     cv2.waitKey(0)
-    cv2.imwrite("out.jpg", canvas)
+    # cv2.imwrite("out.jpg", canvas)
 
 
 if __name__ == '__main__':
