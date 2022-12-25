@@ -5,6 +5,42 @@ from loguru import logger
 from functools import wraps
 
 
+def find_the_adjacent_boxes(boxes: list):
+    list_index = list()
+    for i, a in enumerate(boxes):
+        for j, b in enumerate(boxes):
+            if i == j:
+                continue
+            if j in list_index:
+                continue
+            ax, ay, aw, ah = single_xyxy2cxcywh(a)
+            bx, by, bw, bh = single_xyxy2cxcywh(b)
+            dis = l2((ax, ay), (bx, by))
+            if dis < 2 * aw or dis < 2 * bw:
+                list_index.append(i)
+                list_index.append(j)
+
+    list_index = set(list_index)
+
+    return list(list_index)
+
+
+
+def l2(p1, p2):
+    x0, y0 = p1
+    x1, y1 = p2
+    return np.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2)
+
+
+def single_xyxy2cxcywh(box):
+    x1, y1, x2, y2 = box
+    w = x2 - x1
+    h = y2 - y1
+    x = x1 + w / 2
+    y = y1 + h / 2
+    return x, y, w, h
+
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
@@ -154,12 +190,11 @@ def letterbox(im, new_shape=(640, 640), color=(0, 0, 0)):
     return im, ratio, (dw, dh)
 
 
-
-
 def cost(tag=''):
     '''
     :param tag: 装饰器的参数
     '''
+
     def wrapper(fn):
         @wraps(fn)
         def wrapper_use_time(*args, **kw):
@@ -179,8 +214,11 @@ def cost(tag=''):
                 t2 = time.time()
                 logger.info(f"{tag}@UseTime: {t2 - t1}")
                 return res
+
         return wrapper_use_time
+
     return wrapper
+
 
 
 
@@ -259,4 +297,3 @@ def get_rotate_crop_image(img, points):
         dst_img = np.rot90(dst_img)
 
     return dst_img
-

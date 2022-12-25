@@ -13,6 +13,8 @@ class LPRPipeline(object):
     def run(self, image: np.ndarray) -> list:
         result = list()
         boxes, classes, scores = self.detector(image)
+        fp_boxes_index = find_the_adjacent_boxes(boxes)
+        print('检测到挨近框:', fp_boxes_index)
         if boxes:
             for idx, box in enumerate(boxes):
                 det_confidence = scores[idx]
@@ -26,6 +28,8 @@ class LPRPipeline(object):
                 trans_points = np.dot(inv, polyline.T).T
                 pad = get_rotate_crop_image(image, trans_points)
                 # print(pad.shape)
+                # cv2.imshow("pad", pad)
+                # cv2.waitKey(0)
                 plate_code, rec_confidence = self.recognizer(pad)
                 if plate_code == '':
                     continue
