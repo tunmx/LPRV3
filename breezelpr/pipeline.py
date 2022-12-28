@@ -1,3 +1,5 @@
+import numpy as np
+
 from .common.typedef import Plate
 from .common.tools_process import *
 
@@ -9,16 +11,29 @@ class LPRPipeline(object):
         self.vertex_predictor = vertex_predictor
         self.recognizer = recognizer
 
-    @cost("PipelineTotalCost")
+    # @cost("PipelineTotalCost")
     def run(self, image: np.ndarray) -> list:
         result = list()
         boxes, classes, scores = self.detector(image)
         fp_boxes_index = find_the_adjacent_boxes(boxes)
         print('检测到挨近框:', fp_boxes_index)
+        image_blacks = list()
+        if len(fp_boxes_index) > 0:
+            for idx in fp_boxes_index:
+                image_black = np.zeros_like(image)
+                box = boxes[idx]
+                x1, y1, x2, y2 = np.asarray(box).astype(int)
+                image_black[y1:y2, x1:x2] = image[y1:y2, x1:x2]
+                image_blacks.append(image_black)
         if boxes:
+            fp = 0
             for idx, box in enumerate(boxes):
                 det_confidence = scores[idx]
-                warped, p, mat = align_box(image, box, scale_factor=1.2, size=96)
+                if idx in fp_boxes_index:
+                    warped, p, mat = align_box(image_blacks[fp], box, scale_factor=1.2, size=96)
+                    fp += 1
+                else:
+                    warped, p, mat = align_box(image, box, scale_factor=1.2, size=96)
                 kps = self.vertex_predictor(warped)
                 polyline = list()
                 for point in kps:
