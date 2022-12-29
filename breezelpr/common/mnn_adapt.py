@@ -23,6 +23,7 @@ class MNNAdapter(object):
         output_tensor = list()
         if self.outputs_name:
             if self.outputs_shape:
+                # print(self.outputs_shape)
                 for idx, shape in enumerate(self.outputs_shape):
                     tmp_output = MNN.Tensor(shape, MNN.Halide_Type_Float, np.ones(shape).astype(np.float32), self.dim_type)
                     tmp_tensor = self.interpreter.getSessionOutput(self.session, self.outputs_name[idx])

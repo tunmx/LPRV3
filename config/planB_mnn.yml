@@ -1,0 +1,12 @@
+build_pipeline:
+  det_option:
+    name: MultiTaskDetectorMNN
+    mnn_path: resource/det/y5fu_320x_sim.mnn
+    input_size: [320, 320]
+    box_threshold: 0.5
+    nms_threshold: 0.6
+  rec_option:
+      name: PPRCNNRecognitionMNN
+      mnn_path: resource/rec/rec_ptocr_v3_rec_infer.mnn
+      character_file: resource/rec/ppocr_keys_v1.txt
+      input_size: [48, 320]

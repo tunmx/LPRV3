@@ -1,4 +1,4 @@
-from .pipeline import LPRPipeline
+from .pipeline import LPRPipeline, LPRMultiTaskPipeline
 
 
 def det_maps(name: str):
@@ -8,6 +8,12 @@ def det_maps(name: str):
     elif name == "Y5rkDetectorMNN":
         from .detect import Y5rkDetectorMNN
         return Y5rkDetectorMNN
+    elif name == "MultiTaskDetectorMNN":
+        from .multitask_detect import MultiTaskDetectorMNN
+        return MultiTaskDetectorMNN
+    elif name == "MultiTaskDetectorORT":
+        from .multitask_detect import MultiTaskDetectorORT
+        return MultiTaskDetectorORT
     else:
         raise NotImplemented
 
@@ -34,15 +40,19 @@ def rec_maps(name: str):
         raise NotImplemented
 
 
-def build_pipeline(det_option: dict, vertex_option: dict, rec_option):
+def build_pipeline(det_option: dict, rec_option, vertex_option: dict = None):
     det_option_ = det_option.copy()
     det_name = det_option_.pop("name")
     detector = det_maps(det_name)(**det_option_)
-    vertex_option_ = vertex_option.copy()
-    vertex_name = vertex_option_.pop("name")
-    vertex_predictor = vertex_maps(vertex_name)(**vertex_option_)
     rec_option_ = rec_option.copy()
     rec_name = rec_option_.pop("name")
     recognizer = rec_maps(rec_name)(**rec_option_)
+    if vertex_option:
+        vertex_option_ = vertex_option.copy()
+        vertex_name = vertex_option_.pop("name")
+        vertex_predictor = vertex_maps(vertex_name)(**vertex_option_)
 
-    return LPRPipeline(detector=detector, vertex_predictor=vertex_predictor, recognizer=recognizer)
+        return LPRPipeline(detector=detector, vertex_predictor=vertex_predictor, recognizer=recognizer)
+    else:
+
+        return LPRMultiTaskPipeline(detector=detector, recognizer=recognizer)

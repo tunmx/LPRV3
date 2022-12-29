@@ -4,6 +4,33 @@ from .common.typedef import Plate
 from .common.tools_process import *
 
 
+class LPRMultiTaskPipeline(object):
+
+    def __init__(self, detector, recognizer):
+        self.detector = detector
+        self.recognizer = recognizer
+
+    def run(self, image: np.ndarray) -> list:
+        result = list()
+        outputs = self.detector(image)
+        for out in outputs:
+            rect = out[:4].astype(int)
+            score = out[4]
+            land_marks = out[5:13].reshape(4, 2).astype(int)
+            pad = get_rotate_crop_image(image, land_marks)
+            plate_code, rec_confidence = self.recognizer(pad)
+            if plate_code == '':
+                continue
+            plate = Plate(vertex=land_marks, plate_code=plate_code, det_bound_box=np.asarray(rect),
+                          rec_confidence=rec_confidence, dex_bound_confidence=score)
+            result.append(plate.to_dict())
+
+        return result
+
+    def __call__(self, image: np.ndarray, *args, **kwargs):
+        return self.run(image)
+
+
 class LPRPipeline(object):
 
     def __init__(self, detector, vertex_predictor, recognizer, ):
