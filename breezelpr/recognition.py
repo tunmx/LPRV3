@@ -100,6 +100,7 @@ class PPRCNNRecognitionMNN(HamburgerABC):
         argmax = np.argmax(prod, axis=2)
         print(argmax)
         rmax = np.max(prod, axis=2)
+        print(rmax)
         result = self.decode(argmax, rmax, is_remove_duplicate=True)
 
         return result[0]
