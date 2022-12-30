@@ -35,13 +35,18 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     else:
         resized_w = int(ratio_imgH)
     resized_image = cv2.resize(image, (resized_w, imgH))
+    # padding_im1 = np.zeros((imgH, imgW, imgC), dtype=np.uint8)
+    # padding_im1[:, 0:resized_w, :] = resized_image
+    # cv2.imwrite("pad.jpg", padding_im1)
 
     resized_image = resized_image.astype('float32')
-    resized_image = resized_image.transpose((2, 0, 1)) / 255
-    resized_image -= 0.5
-    resized_image /= 0.5
+    resized_image = (resized_image.transpose((2, 0, 1)) - 127.5) / 127.5
+    # resized_image -= 0.5
+    # resized_image *= 2
     padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
     padding_im[:, :, 0:resized_w] = resized_image
+
+    print(padding_im)
 
     return padding_im
 
@@ -86,12 +91,14 @@ class PPRCNNRecognitionMNN(HamburgerABC):
     def _run_session(self, data):
         output = self.session.inference(data)
         output = output.reshape(40, 6625)
+        # print(output[:, 0])
         output = np.expand_dims([output], 0)
         return output
 
     def _postprocess(self, data):
         prod = data[0]
         argmax = np.argmax(prod, axis=2)
+        print(argmax)
         rmax = np.max(prod, axis=2)
         result = self.decode(argmax, rmax, is_remove_duplicate=True)
 
