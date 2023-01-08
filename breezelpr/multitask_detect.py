@@ -118,6 +118,9 @@ class MultiTaskDetectorMNN(HamburgerABC):
         return img
 
 
+class MultiTaskDetectorDNN(HamburgerABC):
+    pass
+
 class MultiTaskDetectorORT(HamburgerABC):
 
     def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
