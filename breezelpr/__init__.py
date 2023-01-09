@@ -14,6 +14,9 @@ def det_maps(name: str):
     elif name == "MultiTaskDetectorORT":
         from .multitask_detect import MultiTaskDetectorORT
         return MultiTaskDetectorORT
+    elif name == "MultiTaskDetectorDNN":
+        from .multitask_detect import MultiTaskDetectorDNN
+        return MultiTaskDetectorDNN
     else:
         raise NotImplemented
 

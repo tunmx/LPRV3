@@ -83,6 +83,7 @@ def my_letter_box(img, size=(640, 640)):
                              value=(0, 0, 0))
     return img, r, left, top
 
+
 class MultiTaskDetectorMNN(HamburgerABC):
 
     def __init__(self, mnn_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
@@ -119,7 +120,25 @@ class MultiTaskDetectorMNN(HamburgerABC):
 
 
 class MultiTaskDetectorDNN(HamburgerABC):
-    pass
+
+    def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.box_threshold = box_threshold
+        self.nms_threshold = nms_threshold
+        self.session = cv2.dnn.readNetFromONNX(onnx_path)
+        self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
+        self.tensor_shape = [(1, 6300, 15)]
+        print(self.session)
+
+    def _run_session(self, data):
+        pass
+
+    def _postprocess(self, data):
+        pass
+
+    def _preprocess(self, image):
+        pass
+
 
 class MultiTaskDetectorORT(HamburgerABC):
 
