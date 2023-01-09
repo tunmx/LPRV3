@@ -45,5 +45,9 @@ from breezelpr.multitask_detect import MultiTaskDetectorDNN
 # cv2.waitKey(0)
 
 
+image = cv2.imread("/Users/tunm/Downloads/319931671972510_.pic_hd.png")
+
 det = MultiTaskDetectorDNN("/Users/tunm/work/Chinese_license_plate_detection_recognition/onnx/y5fu_320x_sim.onnx",
                            input_size=(320, 320))
+
+det(image)

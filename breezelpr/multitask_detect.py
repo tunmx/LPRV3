@@ -128,16 +128,22 @@ class MultiTaskDetectorDNN(HamburgerABC):
         self.session = cv2.dnn.readNetFromONNX(onnx_path)
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
         self.tensor_shape = [(1, 6300, 15)]
-        print(self.session)
 
     def _run_session(self, data):
-        pass
+        self.session.setInput(data)
+        outputs = self.session.forward()
+        print(outputs.shape)
+
+        return outputs
 
     def _postprocess(self, data):
         pass
 
     def _preprocess(self, image):
-        pass
+        img, r, left, top = detect_pre_precessing(image, self.input_size)  # 检测前处理
+        self.tmp_pack = r, left, top
+
+        return img
 
 
 class MultiTaskDetectorORT(HamburgerABC):
