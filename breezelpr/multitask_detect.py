@@ -132,12 +132,14 @@ class MultiTaskDetectorDNN(HamburgerABC):
     def _run_session(self, data):
         self.session.setInput(data)
         outputs = self.session.forward()
-        print(outputs.shape)
 
         return outputs
 
     def _postprocess(self, data):
-        pass
+
+        r, left, top = self.tmp_pack
+
+        return post_precessing(data, r, left, top)  # 检测后处理
 
     def _preprocess(self, image):
         img, r, left, top = detect_pre_precessing(image, self.input_size)  # 检测前处理
