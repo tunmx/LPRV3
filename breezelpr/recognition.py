@@ -177,3 +177,64 @@ class PPRCNNRecognitionORT(HamburgerABC):
         data = np.expand_dims(data, 0)
 
         return data
+
+
+class PPRCNNRecognitionDNN(HamburgerABC):
+
+    def __init__(self, onnx_path, character_file, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session = cv2.dnn.readNetFromONNX(onnx_path)
+        self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
+        self.character_list = read_key_file(character_file)
+
+    def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
+        """ convert text-index into text-label. """
+        result_list = []
+        ignored_tokens = get_ignored_tokens()
+        batch_size = len(text_index)
+        for batch_idx in range(batch_size):
+            char_list = []
+            conf_list = []
+            for idx in range(len(text_index[batch_idx])):
+                if text_index[batch_idx][idx] in ignored_tokens:
+                    continue
+                if is_remove_duplicate:
+                    # only for predict
+                    if idx > 0 and text_index[batch_idx][idx - 1] == text_index[batch_idx][idx]:
+                        continue
+                char_list.append(self.character_list[int(text_index[batch_idx][idx])])
+                if text_prob is not None:
+                    conf_list.append(text_prob[batch_idx][idx])
+                else:
+                    conf_list.append(1)
+            text = ''.join(char_list)
+            result_list.append((text, np.mean(conf_list)))
+        return result_list
+
+    def _run_session(self, data):
+        self.session.setInput(data)
+        outputs = self.session.forward()
+        outputs = np.expand_dims(outputs, 0)
+        print(outputs.shape)
+
+        return outputs
+
+    def _postprocess(self, data):
+        prod = data[0]
+        argmax = np.argmax(prod, axis=2)
+        rmax = np.max(prod, axis=2)
+        result = self.decode(argmax, rmax, is_remove_duplicate=True)
+
+        return result[0]
+
+    def _preprocess(self, image):
+        assert len(
+            image.shape) == 3, "The dimensions of the input image object do not match. The input supports a single " \
+                               "image. "
+        h, w, _ = image.shape
+        wh_ratio = w * 1.0 / h
+        data = encode_images(image, wh_ratio, self.input_size, )
+        data = np.expand_dims(data, 0)
+
+        return data
+
