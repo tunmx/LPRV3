@@ -35,7 +35,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     else:
         resized_w = int(ratio_imgH)
     resized_image = cv2.resize(image, (resized_w, imgH))
-    # padding_im1 = np.zeros((imgH, imgW, imgC), dtype=np.uint8)
+    # padding_im1 = np.ones((imgH, imgW, imgC), dtype=np.uint8) * 128
     # padding_im1[:, 0:resized_w, :] = resized_image
     # cv2.imwrite("pad.jpg", padding_im1)
 
@@ -46,7 +46,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
     padding_im[:, :, 0:resized_w] = resized_image
 
-    print(padding_im)
+    # np.save('fk.npy', padding_im)
 
     return padding_im
 
@@ -188,7 +188,6 @@ class PPRCNNRecognitionDNN(HamburgerABC):
         self.character_list = read_key_file(character_file)
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
-        """ convert text-index into text-label. """
         result_list = []
         ignored_tokens = get_ignored_tokens()
         batch_size = len(text_index)
