@@ -1,5 +1,5 @@
 from .pipeline import LPRPipeline, LPRMultiTaskPipeline
-
+from .common.tools_process import get_rotate_crop_image
 
 def det_maps(name: str):
     if name == "Y5rkDetectorORT":
