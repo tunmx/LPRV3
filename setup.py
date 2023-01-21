@@ -18,6 +18,12 @@ if __name__ == "__main__":
             "Operating System :: OS Independent",
             "Programming Language :: Python :: 3",
         ],
+        install_requires=[
+            "opencv-python",
+            "onnxruntime",
+            "tqdm",
+            "requests",
+        ],
         license="Apache License 2.0",
         zip_safe=False,
     )
