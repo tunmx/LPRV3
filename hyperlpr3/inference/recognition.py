@@ -1,21 +1,10 @@
 import cv2
 import numpy as np
 from .base.base import HamburgerABC
-from .common.tools_process import cost
+from hyperlpr3.common.tools_process import cost
 import math
-from loguru import logger
+from hyperlpr3.common.tokenize import token
 
-
-def read_key_file(path: str) -> list:
-    key_map = ['blank', ]
-    try:
-        with open(path, 'r') as f:
-            lines = f.readlines()
-            key_map += [item.strip() for item in lines]
-    except Exception as err:
-        logger.error(f"读取key文件发生错误: {err}")
-
-    return key_map
 
 
 def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=1280, limited_min_width=16):
@@ -62,7 +51,7 @@ class PPRCNNRecognitionMNN(HamburgerABC):
         super().__init__(*args, **kwargs)
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
         self.session = MNNAdapter(mnn_path, input_shape=self.input_shape, outputs_name=['output'])
-        self.character_list = read_key_file(character_file)
+        self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         """ convert text-index into text-label. """
@@ -118,14 +107,14 @@ class PPRCNNRecognitionMNN(HamburgerABC):
 
 class PPRCNNRecognitionORT(HamburgerABC):
 
-    def __init__(self, onnx_path, character_file, *args, **kwargs):
+    def __init__(self, onnx_path, *args, **kwargs):
         import onnxruntime as ort
         super().__init__(*args, **kwargs)
         self.session = ort.InferenceSession(onnx_path, None)
         self.input_config = self.session.get_inputs()[0]
         self.output_config = self.session.get_outputs()[0]
         self.input_size = self.input_config.shape[2:]
-        self.character_list = read_key_file(character_file)
+        self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         """ convert text-index into text-label. """
@@ -151,7 +140,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
             result_list.append((text, np.mean(conf_list)))
         return result_list
 
-    @cost("Recognition")
+    # @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
         return result
@@ -185,7 +174,7 @@ class PPRCNNRecognitionDNN(HamburgerABC):
         super().__init__(*args, **kwargs)
         self.session = cv2.dnn.readNetFromONNX(onnx_path)
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
-        self.character_list = read_key_file(character_file)
+        self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         result_list = []
@@ -236,4 +225,3 @@ class PPRCNNRecognitionDNN(HamburgerABC):
         data = np.expand_dims(data, 0)
 
         return data
-
