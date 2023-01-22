@@ -47,7 +47,7 @@ def get_ignored_tokens():
 class PPRCNNRecognitionMNN(HamburgerABC):
 
     def __init__(self, mnn_path, character_file, *args, **kwargs):
-        from .common.mnn_adapt import MNNAdapter
+        from hyperlpr3.common.mnn_adapt import MNNAdapter
         super().__init__(*args, **kwargs)
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
         self.session = MNNAdapter(mnn_path, input_shape=self.input_shape, outputs_name=['output'])

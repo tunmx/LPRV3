@@ -23,7 +23,7 @@ class ClassificationORT(HamburgerABC):
         self.session = ort.InferenceSession(onnx_path, None)
         self.input_config = self.session.get_inputs()[0]
         self.output_config = self.session.get_outputs()[0]
-        self.input_size = self.input_config.shape[2:]
+        self.input_size = tuple(self.input_config.shape[2:])
 
     # @cost('Cls')
     def _run_session(self, data) -> np.ndarray:
@@ -38,6 +38,7 @@ class ClassificationORT(HamburgerABC):
         assert len(
             image.shape) == 3, "The dimensions of the input image object do not match. The input supports a single " \
                                "image. "
+        # print(self.input_size)
         image_resize = cv2.resize(image, self.input_size)
         encode = encode_images(image_resize)
         encode = encode.astype(np.float32)
