@@ -140,7 +140,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
             result_list.append((text, np.mean(conf_list)))
         return result_list
 
-    # @cost("Recognition")
+    @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
         return result
