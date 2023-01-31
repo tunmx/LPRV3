@@ -4,7 +4,7 @@ import copy
 from .base.base import HamburgerABC
 
 
-def xywh2xyxy(boxes):  # xywh坐标变为 左上 ，右下坐标 x1,y1  x2,y2
+def xywh2xyxy(boxes):
     xywh = copy.deepcopy(boxes)
     xywh[:, 0] = boxes[:, 0] - boxes[:, 2] / 2
     xywh[:, 1] = boxes[:, 1] - boxes[:, 3] / 2
@@ -36,7 +36,7 @@ def my_nms(boxes, iou_thresh):  # nms
     return keep
 
 
-def restore_box(boxes, r, left, top):  # 返回原图上面的坐标
+def restore_box(boxes, r, left, top):
     boxes[:, [0, 2, 5, 7, 9, 11]] -= left
     boxes[:, [1, 3, 6, 8, 10, 12]] -= top
 
@@ -45,7 +45,7 @@ def restore_box(boxes, r, left, top):  # 返回原图上面的坐标
     return boxes
 
 
-def detect_pre_precessing(img, img_size):  # 检测前处理
+def detect_pre_precessing(img, img_size):
     img, r, left, top = my_letter_box(img, img_size)
     # cv2.imwrite("1.jpg",img)
     img = img[:, :, ::-1].transpose(2, 0, 1).copy().astype(np.float32)
@@ -54,7 +54,7 @@ def detect_pre_precessing(img, img_size):  # 检测前处理
     return img, r, left, top
 
 
-def post_precessing(dets, r, left, top, conf_thresh=0.3, iou_thresh=0.5):  # 检测后处理
+def post_precessing(dets, r, left, top, conf_thresh=0.3, iou_thresh=0.5):
     choice = dets[:, :, 4] > conf_thresh
     dets = dets[choice]
     dets[:, 13:15] *= dets[:, 4:5]
@@ -83,10 +83,11 @@ def my_letter_box(img, size=(640, 640)):
                              value=(0, 0, 0))
     return img, r, left, top
 
+
 class MultiTaskDetectorMNN(HamburgerABC):
 
     def __init__(self, mnn_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
-        from .common.mnn_adapt import MNNAdapter
+        from hyperlpr3.common.mnn_adapt import MNNAdapter
         super().__init__(*args, **kwargs)
         self.box_threshold = box_threshold
         self.nms_threshold = nms_threshold
@@ -109,10 +110,39 @@ class MultiTaskDetectorMNN(HamburgerABC):
     def _postprocess(self, data):
         r, left, top = self.tmp_pack
 
-        return post_precessing(data, r, left, top)  # 检测后处理
+        return post_precessing(data, r, left, top)
 
     def _preprocess(self, image):
-        img, r, left, top = detect_pre_precessing(image, self.input_size)  # 检测前处理
+        img, r, left, top = detect_pre_precessing(image, self.input_size)
+        self.tmp_pack = r, left, top
+
+        return img
+
+
+class MultiTaskDetectorDNN(HamburgerABC):
+
+    def __init__(self, onnx_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.box_threshold = box_threshold
+        self.nms_threshold = nms_threshold
+        self.session = cv2.dnn.readNetFromONNX(onnx_path)
+        self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
+        self.tensor_shape = [(1, 6300, 15)]
+
+    def _run_session(self, data):
+        self.session.setInput(data)
+        outputs = self.session.forward()
+
+        return outputs
+
+    def _postprocess(self, data):
+
+        r, left, top = self.tmp_pack
+
+        return post_precessing(data, r, left, top)
+
+    def _preprocess(self, image):
+        img, r, left, top = detect_pre_precessing(image, self.input_size)
         self.tmp_pack = r, left, top
 
         return img
@@ -144,10 +174,10 @@ class MultiTaskDetectorORT(HamburgerABC):
 
     def _postprocess(self, data):
         r, left, top = self.tmp_pack
-        return post_precessing(data, r, left, top)  # 检测后处理
+        return post_precessing(data, r, left, top)
 
     def _preprocess(self, image):
-        img, r, left, top = detect_pre_precessing(image, self.input_size)  # 检测前处理
+        img, r, left, top = detect_pre_precessing(image, self.input_size)
         self.tmp_pack = r, left, top
 
         return img

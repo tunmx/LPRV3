@@ -1,21 +1,10 @@
 import cv2
 import numpy as np
 from .base.base import HamburgerABC
-from .common.tools_process import cost
+from hyperlpr3.common.tools_process import cost
 import math
-from loguru import logger
+from hyperlpr3.common.tokenize import token
 
-
-def read_key_file(path: str) -> list:
-    key_map = ['blank', ]
-    try:
-        with open(path, 'r') as f:
-            lines = f.readlines()
-            key_map += [item.strip() for item in lines]
-    except Exception as err:
-        logger.error(f"读取key文件发生错误: {err}")
-
-    return key_map
 
 
 def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=1280, limited_min_width=16):
@@ -35,7 +24,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     else:
         resized_w = int(ratio_imgH)
     resized_image = cv2.resize(image, (resized_w, imgH))
-    # padding_im1 = np.zeros((imgH, imgW, imgC), dtype=np.uint8)
+    # padding_im1 = np.ones((imgH, imgW, imgC), dtype=np.uint8) * 128
     # padding_im1[:, 0:resized_w, :] = resized_image
     # cv2.imwrite("pad.jpg", padding_im1)
 
@@ -46,7 +35,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
     padding_im[:, :, 0:resized_w] = resized_image
 
-    print(padding_im)
+    # np.save('fk.npy', padding_im)
 
     return padding_im
 
@@ -58,11 +47,11 @@ def get_ignored_tokens():
 class PPRCNNRecognitionMNN(HamburgerABC):
 
     def __init__(self, mnn_path, character_file, *args, **kwargs):
-        from .common.mnn_adapt import MNNAdapter
+        from hyperlpr3.common.mnn_adapt import MNNAdapter
         super().__init__(*args, **kwargs)
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
         self.session = MNNAdapter(mnn_path, input_shape=self.input_shape, outputs_name=['output'])
-        self.character_list = read_key_file(character_file)
+        self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         """ convert text-index into text-label. """
@@ -119,14 +108,14 @@ class PPRCNNRecognitionMNN(HamburgerABC):
 
 class PPRCNNRecognitionORT(HamburgerABC):
 
-    def __init__(self, onnx_path, character_file, *args, **kwargs):
+    def __init__(self, onnx_path, *args, **kwargs):
         import onnxruntime as ort
         super().__init__(*args, **kwargs)
         self.session = ort.InferenceSession(onnx_path, None)
         self.input_config = self.session.get_inputs()[0]
         self.output_config = self.session.get_outputs()[0]
         self.input_size = self.input_config.shape[2:]
-        self.character_list = read_key_file(character_file)
+        self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         """ convert text-index into text-label. """
@@ -169,6 +158,65 @@ class PPRCNNRecognitionORT(HamburgerABC):
             return ('', 0.0)
 
     def _preprocess(self, image) -> np.ndarray:
+        assert len(
+            image.shape) == 3, "The dimensions of the input image object do not match. The input supports a single " \
+                               "image. "
+        h, w, _ = image.shape
+        wh_ratio = w * 1.0 / h
+        data = encode_images(image, wh_ratio, self.input_size, )
+        data = np.expand_dims(data, 0)
+
+        return data
+
+
+class PPRCNNRecognitionDNN(HamburgerABC):
+
+    def __init__(self, onnx_path, character_file, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session = cv2.dnn.readNetFromONNX(onnx_path)
+        self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
+        self.character_list = token
+
+    def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
+        result_list = []
+        ignored_tokens = get_ignored_tokens()
+        batch_size = len(text_index)
+        for batch_idx in range(batch_size):
+            char_list = []
+            conf_list = []
+            for idx in range(len(text_index[batch_idx])):
+                if text_index[batch_idx][idx] in ignored_tokens:
+                    continue
+                if is_remove_duplicate:
+                    # only for predict
+                    if idx > 0 and text_index[batch_idx][idx - 1] == text_index[batch_idx][idx]:
+                        continue
+                char_list.append(self.character_list[int(text_index[batch_idx][idx])])
+                if text_prob is not None:
+                    conf_list.append(text_prob[batch_idx][idx])
+                else:
+                    conf_list.append(1)
+            text = ''.join(char_list)
+            result_list.append((text, np.mean(conf_list)))
+        return result_list
+
+    def _run_session(self, data):
+        self.session.setInput(data)
+        outputs = self.session.forward()
+        outputs = np.expand_dims(outputs, 0)
+        print(outputs.shape)
+
+        return outputs
+
+    def _postprocess(self, data):
+        prod = data[0]
+        argmax = np.argmax(prod, axis=2)
+        rmax = np.max(prod, axis=2)
+        result = self.decode(argmax, rmax, is_remove_duplicate=True)
+
+        return result[0]
+
+    def _preprocess(self, image):
         assert len(
             image.shape) == 3, "The dimensions of the input image object do not match. The input supports a single " \
                                "image. "

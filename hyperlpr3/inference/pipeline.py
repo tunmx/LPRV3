@@ -1,14 +1,15 @@
 import numpy as np
 
-from .common.typedef import Plate
-from .common.tools_process import *
+from hyperlpr3.common.typedef import Plate
+from hyperlpr3.common.tools_process import *
 
 
 class LPRMultiTaskPipeline(object):
 
-    def __init__(self, detector, recognizer):
+    def __init__(self, detector, recognizer, classifier):
         self.detector = detector
         self.recognizer = recognizer
+        self.classifier = classifier
 
     def run(self, image: np.ndarray) -> list:
         result = list()
@@ -18,11 +19,13 @@ class LPRMultiTaskPipeline(object):
             score = out[4]
             land_marks = out[5:13].reshape(4, 2).astype(int)
             pad = get_rotate_crop_image(image, land_marks)
+            cls = self.classifier(pad)
+            idx = int(np.argmax(cls))
             plate_code, rec_confidence = self.recognizer(pad)
             if plate_code == '':
                 continue
             plate = Plate(vertex=land_marks, plate_code=plate_code, det_bound_box=np.asarray(rect),
-                          rec_confidence=rec_confidence, dex_bound_confidence=score)
+                          rec_confidence=rec_confidence, dex_bound_confidence=score, plate_type=idx)
             result.append(plate.to_dict())
 
         return result

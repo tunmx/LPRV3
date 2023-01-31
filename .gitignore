@@ -1,4 +1,9 @@
 .idea/
 __pycache__
 resource
+build/
+dist/
+hyperlpr3.egg-info/
+venv/
+run.py
 

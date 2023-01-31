@@ -1,4 +1,4 @@
-from breezelpr.common.tools_process import *
+from hyperlpr3.common.tools_process import *
 from .base.base import HamburgerABC
 
 ANCHORS_MAP = {

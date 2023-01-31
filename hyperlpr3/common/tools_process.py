@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import time
-from loguru import logger
 from functools import wraps
 
 
@@ -191,34 +190,36 @@ def letterbox(im, new_shape=(640, 640), color=(0, 0, 0)):
 
 
 def cost(tag=''):
-    '''
-    :param tag: 装饰器的参数
-    '''
+    try:
+        '''
+        :param tag: 装饰器的参数
+        '''
+        from loguru import logger
+        def wrapper(fn):
+            @wraps(fn)
+            def wrapper_use_time(*args, **kw):
+                '''
+                函数传参方式 fn(arg1, arg2, param1=a, param2=b)
+                :param args: 位置参数(arg1, arg2, ....)  传参方式 fn(arg1, arg2, ...)
+                :param kw: 字典参数{param1=a, param2=b, .....} 传参方式 fn(param1=a, param2=b, ....)
+                :return:
+                '''
+                t1 = time.time()
+                try:
+                    res = fn(*args, **kw)
+                except Exception as e:
+                    logger.error(f"@use_time %s(%s) execute error" % (fn.__name__, tag))
+                    return None
+                else:
+                    t2 = time.time()
+                    logger.info(f"{tag}@UseTime: {t2 - t1}")
+                    return res
 
-    def wrapper(fn):
-        @wraps(fn)
-        def wrapper_use_time(*args, **kw):
-            '''
-            函数传参方式 fn(arg1, arg2, param1=a, param2=b)
-            :param args: 位置参数(arg1, arg2, ....)  传参方式 fn(arg1, arg2, ...)
-            :param kw: 字典参数{param1=a, param2=b, .....} 传参方式 fn(param1=a, param2=b, ....)
-            :return:
-            '''
-            t1 = time.time()
-            try:
-                res = fn(*args, **kw)
-            except Exception as e:
-                logger.error(f"@use_time %s(%s) execute error" % (fn.__name__, tag))
-                return None
-            else:
-                t2 = time.time()
-                logger.info(f"{tag}@UseTime: {t2 - t1}")
-                return res
+            return wrapper_use_time
 
-        return wrapper_use_time
-
-    return wrapper
-
+        return wrapper
+    except Exception as err:
+        print(err)
 
 
 
