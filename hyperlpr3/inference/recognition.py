@@ -7,10 +7,11 @@ from hyperlpr3.common.tokenize import token
 
 
 
-def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=1280, limited_min_width=16):
+def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=160, limited_min_width=16):
     imgC = 3
     imgH, imgW = target_shape
-
+    # cv2.imshow("image", image)
+    # cv2.waitKey(0)
     assert imgC == image.shape[2]
     max_wh_ratio = max(max_wh_ratio, imgW / imgH)
     imgW = int((imgH * max_wh_ratio))
@@ -24,6 +25,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     else:
         resized_w = int(ratio_imgH)
     resized_image = cv2.resize(image, (resized_w, imgH))
+    print((resized_w, imgH))
     # padding_im1 = np.ones((imgH, imgW, imgC), dtype=np.uint8) * 128
     # padding_im1[:, 0:resized_w, :] = resized_image
     # cv2.imwrite("pad.jpg", padding_im1)
@@ -141,9 +143,10 @@ class PPRCNNRecognitionORT(HamburgerABC):
             result_list.append((text, np.mean(conf_list)))
         return result_list
 
-    @cost("Recognition")
+    # @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
+
         return result
 
     def _postprocess(self, data) -> tuple:

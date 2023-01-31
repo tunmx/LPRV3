@@ -13,7 +13,9 @@ def url_to_image(url):
 
 catcher = lpr3.LicensePlateCatcher()
 
-img = url_to_image("https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/test_folder/plate_test.png")
+# img = url_to_image("https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/test_folder/plate_test.png")
+
+img = cv2.imread("/Users/tunm/Downloads/bug.jpg")
 
 result = catcher(img)
 print(result)
