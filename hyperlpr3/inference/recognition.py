@@ -25,7 +25,7 @@ def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_wid
     else:
         resized_w = int(ratio_imgH)
     resized_image = cv2.resize(image, (resized_w, imgH))
-    print((resized_w, imgH))
+    # print((resized_w, imgH))
     # padding_im1 = np.ones((imgH, imgW, imgC), dtype=np.uint8) * 128
     # padding_im1[:, 0:resized_w, :] = resized_image
     # cv2.imwrite("pad.jpg", padding_im1)
