@@ -7,7 +7,7 @@ from hyperlpr3.common.tokenize import token
 
 
 
-def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=160, limited_min_width=16):
+def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=320, limited_min_width=16):
     imgC = 3
     imgH, imgW = target_shape
     # cv2.imshow("image", image)
@@ -117,6 +117,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
         self.input_config = self.session.get_inputs()[0]
         self.output_config = self.session.get_outputs()[0]
         self.input_size = self.input_config.shape[2:]
+        # print(self.input_size)
         self.character_list = token
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
@@ -134,6 +135,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
                     # only for predict
                     if idx > 0 and text_index[batch_idx][idx - 1] == text_index[batch_idx][idx]:
                         continue
+                print(int(text_index[batch_idx][idx]))
                 char_list.append(self.character_list[int(text_index[batch_idx][idx])])
                 if text_prob is not None:
                     conf_list.append(text_prob[batch_idx][idx])
@@ -168,6 +170,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
         wh_ratio = w * 1.0 / h
         data = encode_images(image, wh_ratio, self.input_size, )
         data = np.expand_dims(data, 0)
+        print(data.shape)
 
         return data
 
