@@ -1,6 +1,6 @@
 import numpy as np
 
-from hyperlpr3.common.typedef import Plate
+from hyperlpr3.common.typedef import *
 from hyperlpr3.common.tools_process import *
 
 
@@ -13,20 +13,35 @@ class LPRMultiTaskPipeline(object):
 
     def run(self, image: np.ndarray) -> list:
         result = list()
+        assert len(image.shape) == 3, "Input image must be 3 channels."
+        assert image is not None, "Input image cannot be empty."
         outputs = self.detector(image)
         for out in outputs:
             rect = out[:4].astype(int)
             score = out[4]
             land_marks = out[5:13].reshape(4, 2).astype(int)
+            layer_num = np.argmax(out[13:15])
             pad = get_rotate_crop_image(image, land_marks)
-            cls = self.classifier(pad)
-            idx = int(np.argmax(cls))
             plate_code, rec_confidence = self.recognizer(pad)
             if plate_code == '':
                 continue
-            plate = Plate(vertex=land_marks, plate_code=plate_code, det_bound_box=np.asarray(rect),
-                          rec_confidence=rec_confidence, dex_bound_confidence=score, plate_type=idx)
-            result.append(plate.to_dict())
+            if len(plate_code) >= 7:
+                plate_type = code_filter(plate_code)
+                if plate_type == UNKNOWN:
+                    cls = self.classifier(pad)
+                    idx = int(np.argmax(cls))
+                    if idx == PLATE_TYPE_YELLOW:
+                        if layer_num == DOUBLE:
+                            plate_type = YELLOW_DOUBLE
+                        else:
+                            plate_type = YELLOW_SINGLE
+                    elif idx == PLATE_TYPE_BLUE:
+                        plate_type = BLUE
+                    elif idx == PLATE_TYPE_GREEN:
+                        plate_type = GREEN
+                plate = Plate(vertex=land_marks, plate_code=plate_code, det_bound_box=np.asarray(rect),
+                              rec_confidence=rec_confidence, dex_bound_confidence=score, plate_type=plate_type)
+                result.append(plate.to_dict())
 
         return result
 
@@ -46,7 +61,6 @@ class LPRPipeline(object):
         result = list()
         boxes, classes, scores = self.detector(image)
         fp_boxes_index = find_the_adjacent_boxes(boxes)
-        print('检测到挨近框:', fp_boxes_index)
         image_blacks = list()
         if len(fp_boxes_index) > 0:
             for idx in fp_boxes_index:

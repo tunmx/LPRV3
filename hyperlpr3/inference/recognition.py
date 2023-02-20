@@ -7,7 +7,7 @@ from hyperlpr3.common.tokenize import token
 
 
 
-def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=320, limited_min_width=16):
+def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=160, limited_min_width=16):
     imgC = 3
     imgH, imgW = target_shape
     # cv2.imshow("image", image)
@@ -89,9 +89,9 @@ class PPRCNNRecognitionMNN(HamburgerABC):
     def _postprocess(self, data):
         prod = data[0]
         argmax = np.argmax(prod, axis=2)
-        print(argmax)
+        # print(argmax)
         rmax = np.max(prod, axis=2)
-        print(rmax)
+        # print(rmax)
         result = self.decode(argmax, rmax, is_remove_duplicate=True)
 
         return result[0]
@@ -110,7 +110,7 @@ class PPRCNNRecognitionMNN(HamburgerABC):
 
 class PPRCNNRecognitionORT(HamburgerABC):
 
-    def __init__(self, onnx_path, *args, **kwargs):
+    def __init__(self, onnx_path, token_dict=token, *args, **kwargs):
         import onnxruntime as ort
         super().__init__(*args, **kwargs)
         self.session = ort.InferenceSession(onnx_path, None)
@@ -118,7 +118,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
         self.output_config = self.session.get_outputs()[0]
         self.input_size = self.input_config.shape[2:]
         # print(self.input_size)
-        self.character_list = token
+        self.character_list = token_dict
 
     def decode(self, text_index, text_prob=None, is_remove_duplicate=False):
         """ convert text-index into text-label. """
@@ -135,7 +135,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
                     # only for predict
                     if idx > 0 and text_index[batch_idx][idx - 1] == text_index[batch_idx][idx]:
                         continue
-                print(int(text_index[batch_idx][idx]))
+                # print(int(text_index[batch_idx][idx]))
                 char_list.append(self.character_list[int(text_index[batch_idx][idx])])
                 if text_prob is not None:
                     conf_list.append(text_prob[batch_idx][idx])
@@ -145,7 +145,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
             result_list.append((text, np.mean(conf_list)))
         return result_list
 
-    # @cost("Recognition")
+    @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
 
@@ -160,7 +160,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
 
             return result[0]
         else:
-            return ('', 0.0)
+            return '', 0.0
 
     def _preprocess(self, image) -> np.ndarray:
         assert len(
@@ -210,7 +210,7 @@ class PPRCNNRecognitionDNN(HamburgerABC):
         self.session.setInput(data)
         outputs = self.session.forward()
         outputs = np.expand_dims(outputs, 0)
-        print(outputs.shape)
+        # print(outputs.shape)
 
         return outputs
 

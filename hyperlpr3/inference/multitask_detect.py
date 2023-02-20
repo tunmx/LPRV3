@@ -47,7 +47,7 @@ def restore_box(boxes, r, left, top):
 
 def detect_pre_precessing(img, img_size):
     img, r, left, top = my_letter_box(img, img_size)
-    # cv2.imwrite("1.jpg",img)
+    cv2.imwrite("1.jpg",img)
     img = img[:, :, ::-1].transpose(2, 0, 1).copy().astype(np.float32)
     img = img / 255
     img = img.reshape(1, *img.shape)
