@@ -26,7 +26,7 @@ class LicensePlateCatcher(object):
                 det = MultiTaskDetectorORT(join(folder, ort_cfg['det_model_path_640x']), input_size=(640, 640))
             else:
                 raise NotImplemented
-            rec = PPRCNNRecognitionORT(join(folder, ort_cfg['rec_model_path']), input_size=(48, 320))
+            rec = PPRCNNRecognitionORT(join(folder, ort_cfg['rec_model_path']), input_size=(48, 160))
             cls = ClassificationORT(join(folder, ort_cfg['cls_model_path']), input_size=(96, 96))
             self.pipeline = LPRMultiTaskPipeline(detector=det, recognizer=rec, classifier=cls)
         else:

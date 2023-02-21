@@ -69,6 +69,9 @@ class Plate(object):
         return dict(plate_code=self.plate_code, rec_confidence=self.rec_confidence,
                     det_bound_box=self.det_bound_box, plate_type=self.plate_type)
 
+    def to_result(self):
+        return [self.plate_code, self.rec_confidence, self.plate_type, self.det_bound_box.tolist()]
+
     def __dict__(self):
         return self.to_dict()
 

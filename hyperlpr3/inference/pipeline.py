@@ -41,7 +41,7 @@ class LPRMultiTaskPipeline(object):
                         plate_type = GREEN
                 plate = Plate(vertex=land_marks, plate_code=plate_code, det_bound_box=np.asarray(rect),
                               rec_confidence=rec_confidence, dex_bound_confidence=score, plate_type=plate_type)
-                result.append(plate.to_dict())
+                result.append(plate.to_result())
 
         return result
 

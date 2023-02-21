@@ -170,7 +170,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
         wh_ratio = w * 1.0 / h
         data = encode_images(image, wh_ratio, self.input_size, )
         data = np.expand_dims(data, 0)
-        print(data.shape)
+        # print(data.shape)
 
         return data
 

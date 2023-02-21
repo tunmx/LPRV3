@@ -12,17 +12,17 @@ def url_to_image(url):
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     return image
 
-catcher = lpr3.LicensePlateCatcher(detect_level=lpr3.DETECT_LEVEL_HIGH)
+catcher = lpr3.LicensePlateCatcher(detect_level=lpr3.DETECT_LEVEL_LOW)
 
-# img = url_to_image("https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/test_folder/plate_test.png")
+img = url_to_image("https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/test_folder/plate_test.png")
 
-img = cv2.imread("/Users/tunm/datasets/plate_dataset_various/“蒙”牌-46/蒙A6FH93.jpg")
+# img = cv2.imread("/Users/tunm/datasets/boundingbox/[[277, 1572], [379, 1572], [379, 1597], [277, 1597]].jpg")
 
 result = catcher(img)
 print(result)
 
 for res in result:
-    print(f"{res['plate_code']}, {res['rec_confidence']}, {type_list[res['plate_type']]}")
+    print(res)
 
 
 
