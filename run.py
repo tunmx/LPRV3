@@ -12,7 +12,7 @@ def url_to_image(url):
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     return image
 
-catcher = lpr3.LicensePlateCatcher()
+catcher = lpr3.LicensePlateCatcher(detect_level=lpr3.DETECT_LEVEL_HIGH)
 
 # img = url_to_image("https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/test_folder/plate_test.png")
 

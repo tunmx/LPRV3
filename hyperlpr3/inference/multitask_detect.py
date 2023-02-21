@@ -89,17 +89,19 @@ class MultiTaskDetectorMNN(HamburgerABC):
     def __init__(self, mnn_path, box_threshold: float = 0.5, nms_threshold: float = 0.6, *args, **kwargs):
         from hyperlpr3.common.mnn_adapt import MNNAdapter
         super().__init__(*args, **kwargs)
+        assert self.input_size[0] == self.input_size[1]
         self.box_threshold = box_threshold
         self.nms_threshold = nms_threshold
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
-        self.tensor_shape = [(1, 6300, 15)]
+        if self.input_size[0] == 320:
+            self.tensor_shape = [(1, 6300, 15)]
+        elif self.input_size[0] == 640:
+            self.tensor_shape = [(1, 25200, 15)]
         self.session = MNNAdapter(mnn_path, self.input_shape, outputs_name=['output', ],
                                   outputs_shape=self.tensor_shape)
-        assert self.input_size[0] == self.input_size[1]
 
     def _run_session(self, data):
         outputs = self.session.inference(data)
-        print(outputs.shape)
         result = list()
         for idx, output in enumerate(outputs):
             result.append(output.reshape(self.tensor_shape[idx]))

@@ -4,10 +4,10 @@ from hyperlpr3.inference.multitask_detect import MultiTaskDetectorMNN
 from hyperlpr3.inference.multitask_detect import MultiTaskDetectorORT
 
 
-# mnn_net = MultiTaskDetectorMNN("resource/det/y5fu_320x_sim.mnn", input_size=(320, 320))
-ort_net = MultiTaskDetectorORT("resource/det/y5fu_640x_sim.onnx", input_size=(640, 640))
+# mnn_net = MultiTaskDetectorMNN("resource/det/y5fu_640x_sim_fp16.mnn", input_size=(640, 640))
+ort_net = MultiTaskDetectorORT("resource/det/y5fu_320x_sim.onnx", input_size=(320, 320))
 
-img = cv2.imread("/Users/tunm/datasets/boundingbox/[[360, 765], [463, 765], [463, 789], [360, 789]].jpg")
+img = cv2.imread("/Users/tunm/Downloads/2281676860851_.pic_hd.jpg")
 # img = cv2.cvtColor(img)
 
 # m_out = mnn_net(img)
