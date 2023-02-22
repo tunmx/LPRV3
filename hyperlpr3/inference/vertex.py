@@ -57,7 +57,7 @@ class BVTVertexORT(HamburgerABC):
         self.output_config = self.session.get_outputs()[0]
         self.input_size = self.input_config.shape[2:]
 
-    @cost('Vertex')
+    # @cost('Vertex')
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
 

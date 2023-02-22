@@ -13,7 +13,7 @@ def xywh2xyxy(boxes):
     return xywh
 
 
-def my_nms(boxes, iou_thresh):  # nms
+def nms(boxes, iou_thresh):  # nms
     index = np.argsort(boxes[:, 4])[::-1]
     keep = []
     while index.size > 0:
@@ -46,7 +46,7 @@ def restore_box(boxes, r, left, top):
 
 
 def detect_pre_precessing(img, img_size):
-    img, r, left, top = my_letter_box(img, img_size)
+    img, r, left, top = letter_box(img, img_size)
     cv2.imwrite("1.jpg",img)
     img = img[:, :, ::-1].transpose(2, 0, 1).copy().astype(np.float32)
     img = img / 255
@@ -63,13 +63,13 @@ def post_precessing(dets, r, left, top, conf_thresh=0.3, iou_thresh=0.5):
     score = np.max(dets[:, 13:15], axis=-1, keepdims=True)
     index = np.argmax(dets[:, 13:15], axis=-1).reshape(-1, 1)
     output = np.concatenate((boxes, score, dets[:, 5:13], index), axis=1)
-    reserve_ = my_nms(output, iou_thresh)
+    reserve_ = nms(output, iou_thresh)
     output = output[reserve_]
     output = restore_box(output, r, left, top)
     return output
 
 
-def my_letter_box(img, size=(640, 640)):
+def letter_box(img, size=(640, 640)):
     h, w, c = img.shape
     r = min(size[0] / h, size[1] / w)
     new_h, new_w = int(h * r), int(w * r)

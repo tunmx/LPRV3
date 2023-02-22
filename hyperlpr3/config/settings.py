@@ -1,8 +1,12 @@
 import os
+import sys
 
 _MODEL_VERSION_ = "20230220"
 
-_DEFAULT_FOLDER_ = os.path.join(os.environ['HOME'], ".hyperlpr3")
+if 'win32' in sys.platform:
+    _DEFAULT_FOLDER_ = os.path.join(os.environ['HOMEPATH'], ".hyperlpr3")
+else:
+    _DEFAULT_FOLDER_ = os.path.join(os.environ['HOME'], ".hyperlpr3")
 
 _ONLINE_URL_ = "https://tunm.oss-cn-hangzhou.aliyuncs.com/hyperlpr3/"
 
@@ -12,3 +16,4 @@ onnx_runtime_config = dict(
     rec_model_path=os.path.join(_MODEL_VERSION_, "onnx", "rpv3_mdict_160.onnx"),
     cls_model_path=os.path.join(_MODEL_VERSION_, "onnx", "litemodel_cls_96x_r1.onnx"),
 )
+

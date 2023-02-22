@@ -6,7 +6,6 @@ import math
 from hyperlpr3.common.tokenize import token
 
 
-
 def encode_images(image: np.ndarray, max_wh_ratio, target_shape, limited_max_width=160, limited_min_width=16):
     imgC = 3
     imgH, imgW = target_shape
@@ -145,7 +144,7 @@ class PPRCNNRecognitionORT(HamburgerABC):
             result_list.append((text, np.mean(conf_list)))
         return result_list
 
-    @cost("Recognition")
+    # @cost("Recognition")
     def _run_session(self, data) -> np.ndarray:
         result = self.session.run([self.output_config.name], {self.input_config.name: data})
 

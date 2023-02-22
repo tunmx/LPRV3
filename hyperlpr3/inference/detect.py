@@ -27,7 +27,8 @@ class Y5rkDetectorMNN(HamburgerABC):
         self.nms_threshold = nms_threshold
         self.input_shape = (1, 3, self.input_size[0], self.input_size[1])
         self.tensor_shape = ((1, 18, 40, 40), (1, 18, 20, 20), (1, 18, 10, 10))
-        self.session = MNNAdapter(mnn_path, self.input_shape, outputs_name=['output', '335', '336'], outputs_shape=self.tensor_shape)
+        self.session = MNNAdapter(mnn_path, self.input_shape, outputs_name=['output', '335', '336'],
+                                  outputs_shape=self.tensor_shape)
         assert self.input_size[0] == self.input_size[1]
         self.anchors = ANCHORS_MAP[self.input_size[0]]
 
